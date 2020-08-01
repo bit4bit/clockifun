@@ -20,14 +20,17 @@
 
 ##  example usage
 
+inside emacs execute M-x **clockifuck-enable**
+
 ~~~
 * TODO de nuevo en ideas
 :PROPERTIES:
-:CLOCKIFY-PROJECTID: 5ef4b7fadda3ab39b625315c
+:CLOCKIFY-PROJECT: Myproject
 :END:
 ~~~
 
 ### get project
+
 ~~~
 $ clockify-cli project list
 ~~~

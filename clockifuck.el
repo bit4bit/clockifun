@@ -25,10 +25,23 @@
   :type 'string
   :group 'clockifuck)
 
+(defvar clockifuck-clockify-project-list '())
+
 (defun strings-join (strings sep)
   "string concatenate"
   (mapconcat (lambda (v) v) strings sep))
 
+(defun call-clockify-cli-project-list ()
+  "clockify-cli project list"
+  (let* ((project-lists (process-lines clockifuck-clockify-path
+                 "project"
+                 "list"
+                 "-t" clockifuck-clockify-token
+                 "-w" clockifuck-clockify-workspace-id
+                 "-f" "{{.Name}}|{{.ID}}")))
+    (mapcar (lambda (string)
+              (split-string string "|")) project-lists)))
+  
 (defun call-clockify-cli-in (project-id description tags)
   "start timer clockify"
   (call-process clockifuck-clockify-path nil "*clockifuck*" nil "in"
@@ -53,8 +66,10 @@
         (org-back-to-heading t)
         (let* ((element (cadr (org-element-at-point)))
                (title (plist-get element :title))
-               (project-id (cdr
-                            (car (org-entry-properties nil "CLOCKIFY-PROJECTID")))))
+               (project-name (cdr
+                              (car (org-entry-properties nil "CLOCKIFY-PROJECT"))))
+               (project-id (cadr (assoc project-name clockifuck-clockify-project-list))))
+          
           (call-clockify-cli-in project-id
                                 title
                                 (org-get-local-tags))
@@ -67,6 +82,10 @@
 (defun clockifuck-enable ()
   "enable clockifuck org-mode"
   (interactive)
+
+  (setq clockifuck-clockify-project-list
+    (call-clockify-cli-project-list))
+  
   (add-hook 'org-clock-in-hook #'clockifuck-in)
   (add-hook 'org-clock-out-hook #'clockifuck-out)
   (message "enabled clockifuck"))
