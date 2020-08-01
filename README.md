@@ -16,7 +16,15 @@
 
 (setq clockifuck-clockify-token "xxxx")
 (setq clockifuck-clockify-workspace-id "yyyy")
-(setq clockifuck-clockify-project-id "zzzzzz")
+~~~
+
+##  example usage
+
+~~~
+* TODO de nuevo en ideas
+:PROPERTIES:
+:CLOCKIFY-PROJECTID: 5ef4b7fadda3ab39b625315c
+:END:
 ~~~
 
 ### get project

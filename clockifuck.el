@@ -49,10 +49,13 @@
   (with-current-buffer (org-clock-is-active)
     (save-excursion
       (save-restriction
+        
         (org-back-to-heading t)
         (let* ((element (cadr (org-element-at-point)))
-               (title (plist-get element :title)))
-          (call-clockify-cli-in clockifuck-clockify-project-id
+               (title (plist-get element :title))
+               (project-id (cdr
+                            (car (org-entry-properties nil "CLOCKIFY-PROJECTID")))))
+          (call-clockify-cli-in project-id
                                 title
                                 (org-get-local-tags))
           )))))
