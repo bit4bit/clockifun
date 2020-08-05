@@ -8,6 +8,12 @@
 
  * https://github.com/lucassabreu/clockify-cli
  
+## install custom clockify-cli
+
+~~~
+$ go get -u github.com/bit4bit/clockify-cli
+~~~
+
 ## example installation .emacs
 
 ~~~
@@ -16,6 +22,7 @@
 
 (setq clockifuck-clockify-token "xxxx")
 (setq clockifuck-clockify-workspace-id "yyyy")
+(setq clockifuck-clockify-path "~/go/bin/clockify-cli")
 ~~~
 
 ##  example usage
@@ -25,7 +32,7 @@ inside emacs execute M-x **clockifuck-enable**
 ~~~
 * TODO de nuevo en ideas
 :PROPERTIES:
-:CLOCKIFY-PROJECT: Myproject
+:CLOCKIFY-PROJECT: Myproject/ClientName
 :END:
 ~~~
 

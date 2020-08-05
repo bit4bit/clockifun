@@ -26,6 +26,7 @@
   :group 'clockifuck)
 
 (defvar clockifuck-clockify-project-list '())
+(defvar clockifuck-clockify-project-client-format "{{.Name}}/{{.Client.Name}}|{{.ID}}")
 
 (defun strings-join (strings sep)
   "string concatenate"
@@ -38,7 +39,7 @@
                  "list"
                  "-t" clockifuck-clockify-token
                  "-w" clockifuck-clockify-workspace-id
-                 "-f" "{{.Name}}|{{.ID}}")))
+                 "-f" clockifuck-clockify-project-client-format)))
     (mapcar (lambda (string)
               (split-string string "|")) project-lists)))
   
