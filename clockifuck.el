@@ -80,6 +80,12 @@
   "hook for org-clock-out-hook"
   (call-clockify-cli-out))
 
+(defun clockifuck-project-put ()
+  "Insert property CLOCKIFY-PROJECT in org entry."
+  (interactive)
+  (let ((project-id (completing-read "Clockify Project: " clockifuck-clockify-project-list)))
+    (org-entry-put nil "CLOCKIFY-PROJECT" project-id)))
+
 (defun clockifuck-enable ()
   "enable clockifuck org-mode"
   (interactive)
@@ -92,10 +98,11 @@
   (message "enabled clockifuck"))
 
 (defun clockifuck-disable ()
-  "disable clockifuck org-mode"
+b  "disable clockifuck org-mode"
   (interactive)
   (remove-hook 'org-clock-in-hook #'clockifuck-in)
   (remove-hook 'org-clock-out-hook #'clockifuck-out)
   (message "disabled clockifuck"))
 
 (provide 'clockifuck)
+;;;

@@ -27,8 +27,9 @@ $ go get -u github.com/bit4bit/clockify-cli
 
 ##  example usage
 
-inside emacs execute M-x **clockifuck-enable**
+inside emacs execute M-x **clockifuck-enable**.
 
+inject property in entry with M-x **clockifuck-project-put**.
 ~~~
 * TODO de nuevo en ideas
 :PROPERTIES:
