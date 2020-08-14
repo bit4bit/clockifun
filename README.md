@@ -4,14 +4,11 @@
 
 *but the reality is impure*
 
-# requirements
+## add api key to ~/.authinfo
 
- * https://github.com/lucassabreu/clockify-cli
- 
-## install custom clockify-cli
-
+example
 ~~~
-$ go get -u github.com/bit4bit/clockify-cli
+machine api.clockify.me login fuck password XXXXXXX
 ~~~
 
 ## example installation .emacs
@@ -20,9 +17,7 @@ $ go get -u github.com/bit4bit/clockify-cli
 (add-to-list 'load-path "/home/clockifuck/bin/clockifuck/")
 (require 'clockifuck)
 
-(setq clockifuck-clockify-token "xxxx")
 (setq clockifuck-clockify-workspace-id "yyyy")
-(setq clockifuck-clockify-path "~/go/bin/clockify-cli")
 ~~~
 
 ##  example usage
