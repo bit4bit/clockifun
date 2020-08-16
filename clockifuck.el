@@ -80,7 +80,7 @@
   (message "enabled clockifuck"))
 
 (defun clockifuck-disable ()
-b  "disable clockifuck org-mode"
+  "disable clockifuck org-mode"
   (interactive)
   (remove-hook 'org-clock-in-hook #'clockifuck-in)
   (remove-hook 'org-clock-out-hook #'clockifuck-out)
