@@ -1,44 +1,49 @@
-# clockifuck emacs
+# Clockifuck for emacs
 
 !!NOT USE THIS, org-mode it's all you need.
 
 *but the reality is impure*
 
-## add api key to ~/.authinfo
+Add api key to ~/.authinfo
 
 example
 ~~~
 machine api.clockify.me login fuck password XXXXXXX
 ~~~
 
-## example installation .emacs
+Configure on your file .emacs
 
-~~~
+``` lisp
 (add-to-list 'load-path "/home/clockifuck/bin/clockifuck/")
 (require 'clockifuck)
 
-(setq clockifuck-clockify-workspace-id "yyyy")
-~~~
+(setq clockifuck-clockify-workspace-id "GET_IT_FROM_CLOCKIFY")
+```
+Or if you are using doom, it can be add in file .doom.d/config.el, be careful is needed to have the command of clockify-cli in use
+``` lisp
+;; clockifuck
+(use-package! clockifuck)
+(setq clockifuck-clockify-workspace-id "GET_IT_FROM_CLOCKIFY")
+```
 
-##  example usage
+## Usage
+Inside emacs execute M-x **clockifuck-enable**.
 
-inside emacs execute M-x **clockifuck-enable**.
-
-inject property in entry with M-x **clockifuck-project-put**.
-~~~
+Inject property in entry with M-x **clockifuck-project-put**.
+``` org
 * TODO de nuevo en ideas
 :PROPERTIES:
 :CLOCKIFY-PROJECT: Myproject/ClientName
 :END:
-~~~
+```
 
-### get project
+Get list of projects from command line
 
-~~~
-$ clockify-cli project list
-~~~
+``` sh
+$ clockify-cli project list -t GET_CLOCKIFY_TOKEN 
+```
 
-### get workspace
-~~~
-$ clockify-cli workspaces
-~~~
+Get list of workspaces, use it to set clockifuck-clockify-workspace-id in your file .emacs
+``` sh
+$ clockify-cli workspaces -t GET_CLOCKIFY_TOKEN
+```
