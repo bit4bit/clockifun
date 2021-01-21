@@ -49,8 +49,7 @@
         (org-back-to-heading t)
         (let* ((element (cadr (org-element-at-point)))
                (title (plist-get element :title))
-               (project-name (cdr
-                              (car (org-entry-properties nil "CLOCKIFY-PROJECT"))))
+               (project-name (org-entry-get nil "CLOCKIFY-PROJECT" t))
                (project-id (cdr (assoc project-name clockifuck-clockify-project-list))))
 
           (call-clockify-in project-id

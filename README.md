@@ -36,3 +36,13 @@ Inject property in entry with M-x **clockifuck-project-put**.
 :CLOCKIFY-PROJECT: Myproject/ClientName
 :END:
 ```
+
+Proyect are search at high levels.
+
+```org
+* TODO de nuevo en ideas
+:PROPERTIES:
+:CLOCKIFY-PROJECT: Myproject/ClientName
+:END:
+** TODO usa propiedades de org superior
+```
