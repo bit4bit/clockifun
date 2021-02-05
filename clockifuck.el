@@ -49,9 +49,9 @@
         (org-back-to-heading t)
         (let* ((element (cadr (org-element-at-point)))
                (title (plist-get element :title))
-               (project-name (org-entry-get nil "CLOCKIFY-PROJECT" t))
+               (project-name (clockifuck-org-entry--get-property-or-ask "CLOCKIFY-PROJECT"))
                (project-id (cdr (assoc project-name clockifuck-clockify-project-list))))
-
+          (org-entry-put nil "CLOCKIFY-PROJECT" project-id)
           (call-clockify-in project-id
                             title
                             (org-get-local-tags))
@@ -84,6 +84,13 @@
   (remove-hook 'org-clock-in-hook #'clockifuck-in)
   (remove-hook 'org-clock-out-hook #'clockifuck-out)
   (message "disabled clockifuck"))
+
+(defun clockifuck-org-entry--get-property-or-ask (property)
+  "Get a property o ask in minibuffer."
+  (let ((val (org-entry-get nil property t)))
+    (if val
+        val
+      (completing-read (concat property ": ") clockifuck-clockify-project-list))))
 
 (provide 'clockifuck)
 ;;;
