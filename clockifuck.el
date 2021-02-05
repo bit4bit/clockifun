@@ -51,7 +51,7 @@
                (title (plist-get element :title))
                (project-name (clockifuck-org-entry--get-property-or-ask "CLOCKIFY-PROJECT"))
                (project-id (cdr (assoc project-name clockifuck-clockify-project-list))))
-          (org-entry-put nil "CLOCKIFY-PROJECT" project-id)
+          (org-entry-put nil "CLOCKIFY-PROJECT" project-name)
           (call-clockify-in project-id
                             title
                             (org-get-local-tags))
