@@ -10,7 +10,7 @@
   :type 'string
   :group 'clockifuck)
 
-(defvar clockifuck-clockify-project-list '())
+(defvar-local clockifuck-clockify-project-list '())
 
 (defun strings-join (strings sep)
   "string concatenate"
@@ -42,24 +42,26 @@
 
 (defun clockifuck-in ()
   "hook for org-clock-in-hook"
-  (with-current-buffer (org-clock-is-active)
-    (save-excursion
-      (save-restriction
-        
-        (org-back-to-heading t)
-        (let* ((element (cadr (org-element-at-point)))
-               (title (plist-get element :title))
-               (project-name (clockifuck-org-entry--get-property-or-ask "CLOCKIFY-PROJECT"))
-               (project-id (cdr (assoc project-name clockifuck-clockify-project-list))))
-          (org-entry-put nil "CLOCKIFY-PROJECT" project-name)
-          (call-clockify-in project-id
-                            title
-                            (org-get-local-tags))
-          )))))
+  (clockifuck-org--only-call-in-buffer
+     (with-current-buffer (org-clock-is-active)
+       (save-excursion
+         (save-restriction
+           
+           (org-back-to-heading t)
+           (let* ((element (cadr (org-element-at-point)))
+                  (title (plist-get element :title))
+                  (project-name (clockifuck-org-entry--get-property-or-ask "CLOCKIFY-PROJECT"))
+                  (project-id (cdr (assoc project-name clockifuck-clockify-project-list))))
+             (org-entry-put nil "CLOCKIFY-PROJECT" project-name)
+             (call-clockify-in project-id
+                               title
+                               (org-get-local-tags))
+             ))))))
 
 (defun clockifuck-out ()
   "hook for org-clock-out-hook"
-  (call-clockify-out))
+  (clockifuck-org--only-call-in-buffer
+     (call-clockify-out)))
 
 (defun clockifuck-project-put ()
   "Insert property CLOCKIFY-PROJECT in org entry."
@@ -81,6 +83,7 @@
 (defun clockifuck-disable ()
   "disable clockifuck org-mode"
   (interactive)
+
   (remove-hook 'org-clock-in-hook #'clockifuck-in)
   (remove-hook 'org-clock-out-hook #'clockifuck-out)
   (message "disabled clockifuck"))
@@ -91,6 +94,13 @@
     (if val
         val
       (completing-read (concat property ": ") clockifuck-clockify-project-list))))
+
+(defmacro clockifuck-org--only-call-in-buffer (body)
+  (list 'progn
+        (list
+         'if '(eq clockifuck-clockify-project-list (list))
+         t
+         body)))
 
 (provide 'clockifuck)
 ;;;
