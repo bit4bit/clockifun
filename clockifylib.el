@@ -16,7 +16,9 @@
           (list '("Content-Type" . "application/json")
                 (cons "X-Api-Key"  secret)))
          (service (if (listp resource) (string-join resource "/") resource))
-         (url-request-data (if (listp body) (json-encode-list body) nil))
+         (url-request-data (if (listp body)
+                               (url-http--encode-string
+                                (json-encode-list body)) nil))
       )
     
     (with-current-buffer
