@@ -17,4 +17,4 @@ compile: cask
 
 .PHONY: test
 test: compile
-	cask emacs --batch -L . -L test -l clockifun-tests.el -f ert-run-tests-batch
+	cask emacs --batch -L . -L test -l clockifun-tests.el -l clockifun-gitea-tests.el -f ert-run-tests-batch
