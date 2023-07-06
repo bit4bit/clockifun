@@ -48,7 +48,8 @@ otherwise place the point at the beginning of the inserted text."
   (let ((stopwatcher (clockifun-stopwatcher-clockify)))
     (should (functionp (plist-get stopwatcher 'init)))
     (should (functionp (plist-get stopwatcher 'in)))
-    (should (functionp (plist-get stopwatcher 'out)))))
+    (should (functionp (plist-get stopwatcher 'out)))
+    (should (functionp (plist-get stopwatcher 'project-put)))))
 
 (ert-deftest clockifun-test-clockify-initialize-stopwatcher ()
   (with-mock
