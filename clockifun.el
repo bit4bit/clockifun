@@ -15,6 +15,11 @@
   :type 'string
   :group 'clockifun)
 
+(defcustom clockifun-stopwatcher nil
+  "select the stopwatch provider"
+  :type 'function
+  :group 'clockifun)
+
 (defvar-local clockifun-clockify-project-list '())
 
 (defun strings-join (strings sep)
@@ -74,15 +79,39 @@
   (let ((project-id (completing-read "Clockify Project: " clockifun-clockify-project-list)))
     (org-entry-put nil "CLOCKIFY-PROJECT" project-id)))
 
+(defun clockifun-stopwatcher-clockify ()
+  (list
+   'init (lambda ()
+           (setq clockifun-clockify-project-list
+	         (call-clockify-project-list)))
+   'in #'clockifun-in
+   'out #'clockifun-out))
+
+(defun clockifun-stopwatcher->init (plugin)
+  "Parameter 'init of PLUGIN."
+  (plist-get plugin 'init))
+
+(defun clockifun-stopwatcher->in (plugin)
+  "Parameter 'in of PLUGIN."
+  (plist-get plugin 'in))
+
+(defun clockifun-stopwatcher->out (plugin)
+  "Parameter 'out of PLUGIN."
+  (plist-get plugin 'out))
+
 (defun clockifun-enable ()
   "enable clockifun org-mode"
   (interactive)
-
-  (setq clockifun-clockify-project-list
-    (call-clockify-project-list))
   
-  (add-hook 'org-clock-in-hook #'clockifun-in)
-  (add-hook 'org-clock-out-hook #'clockifun-out)
+  (unless clockifun-stopwatcher
+    (error "Please configure variable clockifun-stopwatcher"))
+
+  (let* ((plugin (funcall clockifun-stopwatcher)))
+    (funcall (clockifun-stopwatcher->init plugin))
+    (add-hook 'org-clock-in-hook (clockifun-stopwatcher->in plugin))
+    (add-hook 'org-clock-out-hook (clockifun-stopwatcher->out plugin))
+    )
+  
   (message "enabled clockifun"))
 
 (defun clockifun-disable ()

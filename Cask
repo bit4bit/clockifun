@@ -5,3 +5,8 @@
 (source org)
 
 (files ("*.el"))
+
+(depends-on "org")
+
+(development
+ (depends-on "el-mock"))
