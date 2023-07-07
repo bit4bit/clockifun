@@ -57,8 +57,13 @@
   "disable clockifun org-mode"
   (interactive)
 
-  (remove-hook 'org-clock-in-hook #'clockifun-in)
-  (remove-hook 'org-clock-out-hook #'clockifun-out)
+  (let* ((plugin (funcall clockifun-stopwatcher))
+         (hook-in (clockifun-stopwatcher->in plugin))
+         (hook-out (clockifun-stopwatcher->out plugin)))
+    (when hook-in
+      (remove-hook 'org-clock-in-hook hook-in))
+    (when hook-out
+      (remove-hook 'org-clock-out-hook hook-out)))
   (message "disabled clockifun"))
 
 (provide 'clockifun)

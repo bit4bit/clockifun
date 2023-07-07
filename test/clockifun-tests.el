@@ -10,17 +10,7 @@
 (require 'ert)
 (require 'clockifun)
 
-(require 'org-test)
-
-(defmacro with-stopwatcher (stopwatcher &rest body)
-  "Run BODY with a custom STOPWATCHER."
-  `(let ((orig clockifun-stopwatcher))
-     (unwind-protect
-         (progn
-           (customize-set-variable 'clockifun-stopwatcher ,stopwatcher)
-           ,@body)
-       (customize-set-variable 'clockifun-stopwatcher orig))
-     ))
+(require 'support)
 
 (ert-deftest clockifun-test-clockifun-enable-requires-stopwatcher ()
   (should-error (clockifun-enable)))
@@ -37,8 +27,7 @@
    (stub call-clockify-project-list => '("TEST"))
 
    (with-stopwatcher
-    (symbol-function 'clockifun-stopwatcher-clockify)
-    (clockifun-enable))))
+    (symbol-function 'clockifun-stopwatcher-clockify))))
 
 (ert-deftest clockifun-test-org-clock-in-starts-stopwatcher ()
   (with-mock
@@ -49,7 +38,6 @@
       (list 'init (lambda ())
             'in (lambda () (stopwatcher-in))
 	    'out (lambda ())))
-    (clockifun-enable)
     (org-test-with-temp-text
      "* DEMO"
      (org-clock-in)
@@ -57,16 +45,12 @@
 
 (ert-deftest clockifun-test-org-clock-out-stops-stopwatcher ()
   (with-mock
-   ;; MACHETE: why try to call stopwatcher-in?
-   (stub stopwatcher-in => t)
-   
    (mock (stopwatcher-out) => t)
    (with-stopwatcher
     (lambda ()
       (list 'init (lambda ())
             'in (lambda ())
             'out (lambda () (stopwatcher-out))))
-    (clockifun-enable)
     (org-test-with-temp-text
      "* DEMO"
      (org-clock-in)
