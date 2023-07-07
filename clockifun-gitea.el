@@ -7,6 +7,20 @@
 
 ;;; Code:
 
+
+(defun clockifun-gitea--extract-issue-id (title)
+  (when (stringp title)
+    (let ((data (match-data)))
+      (unwind-protect
+          (progn (string-match "#\\([0-9]+\\)" title)
+                 (match-string 1 title))
+        (set-match-data data)))))
+
+(defun clockifun-gitea--org-entry-at-endpoint->repository ()
+  (save-restriction
+    (let ((element (org-entry-get nil "CLOCKIFUN-GITEA-REPOSITORY" t)))
+      element)))
+
 (provide 'clockifun-gitea)
 
 ;;; clockifun-gitea.el ends here
