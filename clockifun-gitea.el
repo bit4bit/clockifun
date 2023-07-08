@@ -10,16 +10,6 @@
 (defconst ORG-ISSUE-ID "CLOCKIFUN-GITEA-ISSUE-ID")
 (defconst ORG-REPOSITORY "CLOCKIFUN-GITEA-REPOSITORY")
 
-(defcustom clockifun-clockify-workspace-id nil
-  "clockify-cli CLOCKIFY_WORKSPACE"
-  :type 'string
-  :group 'clockifun)
-
-(defcustom clockifun-gitea-username nil
-  "GITEA username."
-  :type 'string
-  :group 'clockifun)
-
 (defcustom clockifun-gitea-host nil
   "GITEA Host."
   :type 'string
@@ -57,7 +47,7 @@
   "Query issue id of REPO."
   (let ((issues (clockifun-gitea--gitea-issues
                  clockifun-gitea-host
-                 clockifun-gitea-username
+                 (clockifun-gitea--gitea-auth-user clockifun-gitea-host)
                  repo)))
     (cdr (assoc (completing-read "ISSUE: " issues) issues))))
 
@@ -97,7 +87,7 @@
     
     (clockifun-gitea--issue-id->org-entry-at-endpoint issue-id)
     (clockifun-gitea--gitea-start-stopwatch
-     clockifun-gitea-username
+     (clockifun-gitea--gitea-auth-user clockifun-gitea-host)
      repo
      issue-id)))
 
@@ -111,7 +101,7 @@
     
     (clockifun-gitea--issue-id->org-entry-at-endpoint issue-id)
     (clockifun-gitea--gitea-stop-stopwatch
-     clockifun-gitea-username
+     (clockifun-gitea--gitea-auth-user clockifun-gitea-host)
      repo
      issue-id)
     ))
@@ -120,6 +110,11 @@
   (let ((found (nth 0 (auth-source-search :host host))))
     (unless found (error (format "not found auth token for host %s" host)))
     (funcall (plist-get found :secret))))
+
+(defun clockifun-gitea--gitea-auth-user (host)
+  (let ((found (nth 0 (auth-source-search :host host))))
+    (unless found (error (format "not found auth token for host %s" host)))
+    (plist-get (nth 0 (auth-source-search :host host)) :user)))
 
 (defun clockifun-gitea--gitea-call (host method resource &optional body)
   "Do call to gitea HOST using http METHOD to RESOURCE with BODY."

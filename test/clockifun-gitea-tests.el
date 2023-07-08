@@ -87,6 +87,7 @@
 
 (ert-deftest clockifun-gitea-test-gitea-start-stopwatch ()
   (with-mock
+   (stub clockifun-gitea--gitea-auth-user => "bit4bit")
    (mock (clockifun-gitea--gitea-call
           "gitea.test.org" "POST"
           "/api/v1/repos/bit4bit/prueba/issues/1/stopwatch/start"))
@@ -96,6 +97,7 @@
 
 (ert-deftest clockifun-gitea-test-gitea-stop-stopwatch ()
   (with-mock
+   (stub clockifun-gitea--gitea-auth-user => "bit4bit")
    (mock (clockifun-gitea--gitea-call
           "gitea.test.org" "POST"
           "/api/v1/repos/bit4bit/prueba/issues/1/stopwatch/stop"))
@@ -153,8 +155,11 @@
 
 (ert-deftest clockifun-gitea-test-clock-in-starts-stopwatch ()
   (with-mock
-   (mock (clockifun-gitea--gitea-start-stopwatch "bit4bit" "demo" "123"))
+   (stub clockifun-gitea--gitea-auth-user => "bit4bit")
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
+
+   (mock (clockifun-gitea--gitea-start-stopwatch "bit4bit" "demo" "123"))
+
 
    (with-stopwatcher
     (symbol-function 'clockifun-stopwatcher-gitea)
@@ -169,7 +174,9 @@
 
 (ert-deftest clockifun-gitea-test-clock-in-stops-stopwatch ()
   (with-mock
+   (stub clockifun-gitea--gitea-auth-user => "bit4bit")
    (stub clockifun-gitea--gitea-start-stopwatch => t)
+
    (mock (clockifun-gitea--gitea-stop-stopwatch "bit4bit" "demo" "123"))
    
    (with-stopwatcher
