@@ -25,6 +25,25 @@ machine <HOST> login <USER> password <TOKEN>
 (setq clockifun-gitea-host "<HOST>")
 ```
 
+#### Usage
+
+clockifun can detects the issue id from the task
+
+```org
+* TASK #ISSUEID
+```
+
+usage recommendation
+
+```org
+* repository demo # run M-x clockifun-project-put
+** TASK #1
+** TASK #2
+* repository mero
+** TASK #3
+** TASK #4
+```
+
 ### Clockify Provider
 
 Add api key to ~/.authinfo
