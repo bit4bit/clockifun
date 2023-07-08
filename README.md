@@ -22,7 +22,8 @@ machine <HOST> login <USER> password <TOKEN>
 
 **emacs.d**
 ```lisp
-(setq clockifun-stopwatcher clockifun-stopwatcher-gitea)
+(require 'clockifun-gitea)
+(setq clockifun-stopwatcher (symbol-function 'clockifun-stopwatcher-gitea))
 (setq clockifun-gitea-host "<HOST>")
 ```
 
@@ -56,7 +57,8 @@ machine api.clockify.me login fuck password XXXXXXX
 
 **emacs.d**
 ``` lisp
-(setq clockifun-stopwatcher clockifun-stopwatcher-clockify)
+(require 'clockifun-clockify)
+(setq clockifun-stopwatcher (symbol-function 'clockifun-stopwatcher-clockify))
 (setq clockifun-clockify-workspace-id "GET_IT_FROM_CLOCKIFY")
 ```
 
