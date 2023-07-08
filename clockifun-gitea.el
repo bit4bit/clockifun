@@ -143,6 +143,7 @@
    (clockifun-gitea--get-repository)))
 
 (defun clockifun-stopwatcher-gitea ()
+  "PLUGIN."
   (list
    'init (lambda ())
    'in #'clockifun-gitea--clock-in

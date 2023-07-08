@@ -4,6 +4,29 @@
 
 *but the reality is impure*
 
+
+Configure on your file .emacs
+``` lisp
+(add-to-list 'load-path "<SOURCE CODE DIRECTORY>")
+(require 'clockifun)
+```
+
+### Gitea provider
+
+Add api key to ~/.authinfo
+
+example
+~~~
+machine <HOST> login <USER> password <TOKEN>
+~~~
+
+```lisp
+(setq clockifun-stopwatcher clockifun-stopwatcher-gitea)
+(setq clockifun-gitea-host "<HOST>")
+```
+
+### Clockify Provider
+
 Add api key to ~/.authinfo
 
 example
@@ -11,14 +34,12 @@ example
 machine api.clockify.me login fuck password XXXXXXX
 ~~~
 
-Configure on your file .emacs
 
 ``` lisp
-(add-to-list 'load-path "/home/clockifun/bin/clockifun/")
-(require 'clockifun)
-
+(setq clockifun-stopwatcher clockifun-stopwatcher-clockify)
 (setq clockifun-clockify-workspace-id "GET_IT_FROM_CLOCKIFY")
 ```
+
 Or if you are using doom, it can be add in file .doom.d/config.el, be careful is needed to have the command of clockify-cli in use
 ``` lisp
 ;; clockifun
@@ -30,19 +51,15 @@ Or if you are using doom, it can be add in file .doom.d/config.el, be careful is
 Inside emacs execute M-x **clockifun-enable**.
 
 Inject property in entry with M-x **clockifun-project-put**.
-``` org
+Starts org-clock with `C-c C-x i` and stops with `C-c C-x o`
+
+```org
 * TODO de nuevo en ideas
-:PROPERTIES:
-:CLOCKIFY-PROJECT: Myproject/ClientName
-:END:
 ```
 
 Proyect are search at high levels.
 
 ```org
 * TODO de nuevo en ideas
-:PROPERTIES:
-:CLOCKIFY-PROJECT: Myproject/ClientName
-:END:
 ** TODO usa propiedades de org superior
 ```

@@ -9,7 +9,6 @@
 (require 'org-clock)
 (require 'clockifylib)
 
-(require 'clockifun-clockify)
 
 (defcustom clockifun-stopwatcher nil
   "select the stopwatch provider"
