@@ -7,6 +7,8 @@
 
 ;;; Code:
 
+(require 'clockifunlib)
+
 (defconst ORG-ISSUE-ID "CLOCKIFUN-GITEA-ISSUE-ID")
 (defconst ORG-REPOSITORY "CLOCKIFUN-GITEA-REPOSITORY")
 
@@ -119,34 +121,14 @@
     ))
 
 (defun clockifun-gitea--gitea-auth-token (host)
-  (let ((found (nth 0 (auth-source-search :host host))))
-    (unless found (error (format "not found auth token for host %s" host)))
-    (funcall (plist-get found :secret))))
+  (clockifun--host->auth-token host))
 
 (defun clockifun-gitea--gitea-auth-user (host)
-  (let ((found (nth 0 (auth-source-search :host host))))
-    (unless found (error (format "not found auth token for host %s" host)))
-    (plist-get (nth 0 (auth-source-search :host host)) :user)))
+  (clockifun--host->user host))
 
 (defun clockifun-gitea--gitea-call (host method resource &optional body)
   "Do call to gitea HOST using http METHOD to RESOURCE with BODY."
-  (let* ((secret (clockifun-gitea--gitea-auth-token host))
-         (url-request-method method)
-         (url-request-extra-headers
-          (list '("Content-Type" . "application/json")
-                (cons "Authorization"  (concat "token " secret))))
-         (service (if (listp resource) (string-join resource "/") resource))
-         (url-request-data (if (listp body)
-                               (replace-regexp-in-string "[^[:ascii:]]" "?"
-                                                         (json-encode-list body)) nil))
-         )
-    
-    (with-current-buffer
-        (url-retrieve-synchronously (concat "https://" host service))
-      (goto-char (point-min))
-      (search-forward-regexp "\n\n")
-      (buffer-substring (point) (point-max))
-      )))
+  (clockifun--http-call host method resource body))
 
 (defun clockifun-gitea--gitea-issues (host username repo)
   (let* ((token (clockifun-gitea--gitea-auth-token host))

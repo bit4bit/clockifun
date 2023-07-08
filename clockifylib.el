@@ -1,3 +1,5 @@
+(require 'clockifunlib)
+
 (defvar clockify-base-endpoint
   "https://api.clockify.me/api")
 
@@ -9,24 +11,7 @@
 
 (defun clockify-call (method resource &optional body)
   "return me"
-  (let* ((found (nth 0 (auth-source-search :host "api.clockify.me")))
-         (secret (funcall (plist-get found :secret)))
-         (url-request-method method)
-         (url-request-extra-headers
-          (list '("Content-Type" . "application/json")
-                (cons "X-Api-Key"  secret)))
-         (service (if (listp resource) (string-join resource "/") resource))
-         (url-request-data (if (listp body)
-                               (replace-regexp-in-string "[^[:ascii:]]" "?"
-                                                         (json-encode-list body)) nil))
-      )
-    
-    (with-current-buffer
-        (url-retrieve-synchronously (concat clockify-base-endpoint service))
-      (goto-char (point-min))
-      (search-forward-regexp "\n\n")
-      (buffer-substring (point) (point-max))
-    )))
+  (clockifun--http-call "api.clockify.me" method (concat "/api") body))
 
 (defun clockify-call/sexp (method resource &optional body)
   "return SEXP"
