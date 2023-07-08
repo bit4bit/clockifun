@@ -9,7 +9,7 @@
 (require 'el-mock)
 (require 'ert)
 (require 'clockifun)
-
+(require 'clockifun-clockify)
 (require 'support)
 
 (ert-deftest clockifun-test-clockifun-enable-requires-stopwatcher ()
