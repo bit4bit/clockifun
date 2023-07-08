@@ -85,6 +85,16 @@
               ("test" . "2"))
             (clockifun-gitea--gitea-issues "gitea.test.org" "bit4bit" "prueba")))))
 
+(ert-deftest clockifun-gitea-test-gitea-issues-only-opened ()
+  (with-mock
+   (mock (clockifun-gitea--gitea-call
+          "gitea.test.org"
+          "GET"
+          "/api/v1/repos/bit4bit/prueba/issues?state=open") => "{}")
+   (stub clockifun-gitea--gitea-auth-token => "demo")
+
+   (clockifun-gitea--gitea-issues "gitea.test.org" "bit4bit" "prueba")))
+
 (ert-deftest clockifun-gitea-test-gitea-start-stopwatch ()
   (with-mock
    (stub clockifun-gitea--gitea-auth-user => "bit4bit")

@@ -135,7 +135,7 @@
          (data (clockifun-gitea--gitea-call
                 host
                 "GET"
-                (concat  "/api/v1/repos/" username "/" repo "/issues"))))
+                (concat  "/api/v1/repos/" username "/" repo "/issues?state=open"))))
     (clockifun-gitea--parse-gitea-issues-data data)))
 
 (defun clockifun-gitea--clock-put ()
