@@ -112,6 +112,7 @@
    (stub clockifun-gitea--ask-user-for-issue => nil)
    (stub clockifun-gitea--gitea-start-stopwatch => t)
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
+   (stub clockifun-gitea--get-repository => nil)
 
    ;; uuum? repository error?
    (should-error
@@ -122,9 +123,10 @@
       (unwind-protect (org-clock-in) (org-clock-out))
       )) :type 'user-error)))
 
-(ert-deftest clockifun-gitea-test-clock-in-when-not-have-ask-user ()
+(ert-deftest clockifun-gitea-test-clock-in-when-not-have-issue-ask-user ()
   (with-mock
    (mock (clockifun-gitea--ask-user-for-issue "DEMO") => "123")
+
    (stub clockifun-gitea--gitea-start-stopwatch => t)
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
    
@@ -137,8 +139,23 @@
      (org-clock-out)))))
 
 
+(ert-deftest clockifun-gitea-test-clock-in-when-not-have-repository-ask-user ()
+  (with-mock
+   (stub clockifun-gitea--gitea-start-stopwatch => t)
+   (stub clockifun-gitea--gitea-stop-stopwatch => t)
+
+   (mock (clockifun-gitea--ask-user-for-repository) => "DEMO")
+   
+   (with-stopwatcher
+    (symbol-function 'clockifun-stopwatcher-gitea)
+    (org-test-with-temp-text
+     "* DEMO #1"
+     (org-clock-in)
+     (org-clock-out)))))
+
 (ert-deftest clockifun-gitea-test-clock-in-when-have-invalid-raises-error ()
   (with-mock
+   (stub clockifun-gitea--get-repository => "demo")
    (stub clockifun-gitea--ask-user-for-issue => nil)
    (stub clockifun-gitea--gitea-start-stopwatch => t)
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
@@ -175,6 +192,7 @@
 (ert-deftest clockifun-gitea-test-clock-in-stops-stopwatch ()
   (with-mock
    (stub clockifun-gitea--gitea-auth-user => "bit4bit")
+   (stub clockifun-gitea--get-repository => "demo")
    (stub clockifun-gitea--gitea-start-stopwatch => t)
 
    (mock (clockifun-gitea--gitea-stop-stopwatch "bit4bit" "demo" "123"))

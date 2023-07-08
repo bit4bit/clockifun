@@ -51,10 +51,20 @@
                  repo)))
     (cdr (assoc (completing-read "ISSUE: " issues) issues))))
 
+(defun clockifun-gitea--ask-user-for-repository ()
+  "Ask user REPO."
+  (read-from-minibuffer "REPOSITORY: " nil nil nil))
+
 (defun clockifun-gitea--get-issue-id (repo)
   (let ((issue-id (clockifun-gitea--org-entry-at-endpoint->issue-id)))
     (if issue-id issue-id
       (clockifun-gitea--ask-user-for-issue repo))))
+
+(defun clockifun-gitea--get-repository ()
+  (let ((repo (clockifun-gitea--org-entry-at-endpoint->repository)))
+    (if repo repo
+      (clockifun-gitea--ask-user-for-repository))
+    ))
 
 (defun clockifun-gitea--parse-gitea-issues-data (data)
   (mapcar (lambda (issue)
@@ -79,13 +89,14 @@
 
 (defun clockifun-gitea--clock-in ()
   (let* (
-         (repo (clockifun-gitea--org-entry-at-endpoint->repository))
+         (repo (clockifun-gitea--get-repository))
          (issue-id (clockifun-gitea--get-issue-id repo))
          )
     (unless repo (user-error "Fails to get a REPOSITORY"))
     (unless issue-id (user-error "Fails to get a ISSUE ID"))
     
     (clockifun-gitea--issue-id->org-entry-at-endpoint issue-id)
+    (clockifun-gitea--repository->org-entry-at-endpoint repo)
     (clockifun-gitea--gitea-start-stopwatch
      (clockifun-gitea--gitea-auth-user clockifun-gitea-host)
      repo
@@ -93,13 +104,14 @@
 
 (defun clockifun-gitea--clock-out ()
   (let* (
-         (repo (clockifun-gitea--org-entry-at-endpoint->repository))
+         (repo (clockifun-gitea--get-repository))
          (issue-id (clockifun-gitea--get-issue-id repo))
          )
     (unless repo (user-error "Fails to get a REPOSITORY"))
     (unless issue-id (user-error "Fails to get a ISSUE ID"))
     
     (clockifun-gitea--issue-id->org-entry-at-endpoint issue-id)
+    (clockifun-gitea--repository->org-entry-at-endpoint repo)
     (clockifun-gitea--gitea-stop-stopwatch
      (clockifun-gitea--gitea-auth-user clockifun-gitea-host)
      repo
@@ -146,7 +158,7 @@
 
 (defun clockifun-gitea--clock-put ()
   (clockifun-gitea--repository->org-entry-at-endpoint
-   (read-from-minibuffer "REPOSITORY" "" nil nil nil)))
+   (clockifun-gitea--get-repository)))
 
 (defun clockifun-stopwatcher-gitea ()
   (list
