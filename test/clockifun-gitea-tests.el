@@ -20,6 +20,14 @@
   (should (equal nil (clockifun-gitea--extract-issue-id "closes 1236")))
   (should (equal nil (clockifun-gitea--extract-issue-id nil))))
 
+(ert-deftest clockifun-gitea-test-extract-issue-id-from-org-entry ()
+  (should (string=
+           "123"
+
+           (org-test-with-temp-text
+            "* DEMO #123"
+            (clockifun-gitea--org-entry-at-endpoint->issue-id)))))
+
 (ert-deftest clockifun-gitea-test-repository-name-from-parent-org-entry ()
   (should (equal
            "DEMO"
@@ -60,18 +68,48 @@
 
 (ert-deftest clockifun-gitea-test-parse-gitea-issues ()
   ;;https://try.gitea.io/api/swagger#/issue/issueListIssues
-  (let ((remote-data "[{\"id\": 123, \"title\":\"DEMO\"}, {\"id\": 456, \"title\": \"TEST\"}]"))
+  (let ((remote-data "[{\"number\": 123, \"title\":\"DEMO\"}, {\"number\": 456, \"title\": \"TEST\"}]"))
     (should (equal
-             '(("123" . "DEMO")
-               ("456" . "TEST"))
+             '(("DEMO" . "123")
+               ("TEST" . "456"))
              (clockifun-gitea--parse-gitea-issues-data remote-data)
              ))))
+
+(ert-deftest clockifun-gitea-test-gitea-issues ()
+  (with-mock
+   (stub clockifun-gitea--gitea-auth-token => "demo")
+   (stub clockifun-gitea--gitea-call => "[{\"number\": 1, \"title\": \"demo\"}, {\"number\": 2, \"title\": \"test\"}]")
+
+   (should (equal
+            '(("demo" . "1")
+              ("test" . "2"))
+            (clockifun-gitea--gitea-issues "gitea.test.org" "bit4bit" "prueba")))))
+
+(ert-deftest clockifun-gitea-test-gitea-start-stopwatch ()
+  (with-mock
+   (mock (clockifun-gitea--gitea-call
+          "gitea.test.org" "POST"
+          "/api/v1/repos/bit4bit/prueba/issues/1/stopwatch/start"))
+
+   (setq clockifun-gitea-host "gitea.test.org")
+   (clockifun-gitea--gitea-start-stopwatch "bit4bit" "prueba" "1")))
+
+(ert-deftest clockifun-gitea-test-gitea-stop-stopwatch ()
+  (with-mock
+   (mock (clockifun-gitea--gitea-call
+          "gitea.test.org" "POST"
+          "/api/v1/repos/bit4bit/prueba/issues/1/stopwatch/stop"))
+
+   (setq clockifun-gitea-host "gitea.test.org")
+   (clockifun-gitea--gitea-stop-stopwatch "bit4bit" "prueba" "1")))
 
 ;; ACCEPTANCE
 
 (ert-deftest clockifun-gitea-test-clock-in-when-not-have-repository-raise-error ()
   (with-mock
    (stub clockifun-gitea--ask-user-for-issue => nil)
+   (stub clockifun-gitea--gitea-start-stopwatch => t)
+   (stub clockifun-gitea--gitea-stop-stopwatch => t)
 
    ;; uuum? repository error?
    (should-error
@@ -84,8 +122,10 @@
 
 (ert-deftest clockifun-gitea-test-clock-in-when-not-have-ask-user ()
   (with-mock
-   (mock (clockifun-gitea--ask-user-for-issue) => "123")
-
+   (mock (clockifun-gitea--ask-user-for-issue "DEMO") => "123")
+   (stub clockifun-gitea--gitea-start-stopwatch => t)
+   (stub clockifun-gitea--gitea-stop-stopwatch => t)
+   
    (with-stopwatcher
     (symbol-function 'clockifun-stopwatcher-gitea)
     (org-test-with-temp-text
@@ -94,9 +134,12 @@
      (org-clock-in)
      (org-clock-out)))))
 
+
 (ert-deftest clockifun-gitea-test-clock-in-when-have-invalid-raises-error ()
   (with-mock
    (stub clockifun-gitea--ask-user-for-issue => nil)
+   (stub clockifun-gitea--gitea-start-stopwatch => t)
+   (stub clockifun-gitea--gitea-stop-stopwatch => t)
 
    (should-error
     (with-stopwatcher
@@ -107,18 +150,45 @@
       (unwind-protect (org-clock-in) (org-clock-out))
       )) :type 'user-error)))
 
-(ert-deftest clockifun-gitea-test-gitea-issues ()
-  (with-mock
-   (mock (clockifun-gitea--gitea-auth-token "gitea.test.org") => "demo")
-   (mock (clockifun-gitea--gitea-call "gitea.test.org" "GET" "/api/v1/repos/bit4bit/prueba/issues") => "[{\"id\": 1, \"title\": \"demo\"}, {\"id\": 2, \"title\": \"test\"}]")
 
-   (clockifun-gitea--gitea-issues "gitea.test.org" "bit4bit" "prueba")))
+(ert-deftest clockifun-gitea-test-clock-in-starts-stopwatch ()
+  (with-mock
+   (mock (clockifun-gitea--gitea-start-stopwatch "bit4bit" "demo" "123"))
+   (stub clockifun-gitea--gitea-stop-stopwatch => t)
+
+   (with-stopwatcher
+    (symbol-function 'clockifun-stopwatcher-gitea)
+    (org-test-with-temp-text
+     "* DEMO"
+     (clockifun-gitea--repository->org-entry-at-endpoint "demo")
+     (clockifun-gitea--issue-id->org-entry-at-endpoint "123")
+     (setq clockifun-gitea-username "bit4bit")
+     (org-clock-in)
+     (org-clock-out)
+     ))))
+
+(ert-deftest clockifun-gitea-test-clock-in-stops-stopwatch ()
+  (with-mock
+   (stub clockifun-gitea--gitea-start-stopwatch => t)
+   (mock (clockifun-gitea--gitea-stop-stopwatch "bit4bit" "demo" "123"))
+   
+   (with-stopwatcher
+    (symbol-function 'clockifun-stopwatcher-gitea)
+    (org-test-with-temp-text
+     "* DEMO"
+     (clockifun-gitea--repository->org-entry-at-endpoint "demo")
+     (clockifun-gitea--issue-id->org-entry-at-endpoint "123")
+     (setq clockifun-gitea-username "bit4bit")
+     (org-clock-in)
+     (org-clock-out)
+     ))))
 
 ;; MANUAL
 
 ;; ~/.authinfo configurar
-;; (clockifun-gitea--gitea-call "gitea.server.org" "GET" "/api/v1/repos/bit4bit/prueba/issues")
-;; (clockifun-gitea--gitea-issues)
+;; (clockifun-gitea--gitea-issues "gitea.server.org" "bit4bit" "prueba")
+;; (clockifun-enable)
+;;
 (provide 'clockifun-gitea)
 
 ;;; clockifun-gitea-tests.el ends here

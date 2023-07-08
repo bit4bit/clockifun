@@ -28,6 +28,10 @@
   "Parameter 'out of PLUGIN."
   (plist-get plugin 'out))
 
+(defun clockifun-stopwatcher->project-put (plugin)
+  "Parameter 'out of PLUGIN."
+  (plist-get plugin 'project-put))
+
 (defun strings-join (strings sep)
   "string concatenate"
   (mapconcat (lambda (v) v) strings sep))
@@ -35,7 +39,8 @@
 (defun clockifun-project-put ()
   "Insert property CLOCKIFY-PROJECT in org entry."
   (interactive)
-  (clockifun-stopwatcher->project-put (funcall clockifun-stopwatcher)))
+  (funcall
+   (clockifun-stopwatcher->project-put (funcall clockifun-stopwatcher))))
 
 
 (defun clockifun-enable ()
