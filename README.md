@@ -20,6 +20,7 @@ example
 machine <HOST> login <USER> password <TOKEN>
 ~~~
 
+**emacs.d**
 ```lisp
 (setq clockifun-stopwatcher clockifun-stopwatcher-gitea)
 (setq clockifun-gitea-host "<HOST>")
@@ -53,13 +54,15 @@ example
 machine api.clockify.me login fuck password XXXXXXX
 ~~~
 
-
+**emacs.d**
 ``` lisp
 (setq clockifun-stopwatcher clockifun-stopwatcher-clockify)
 (setq clockifun-clockify-workspace-id "GET_IT_FROM_CLOCKIFY")
 ```
 
 Or if you are using doom, it can be add in file .doom.d/config.el, be careful is needed to have the command of clockify-cli in use
+
+**emacs.d**
 ``` lisp
 ;; clockifun
 (use-package! clockifun)
