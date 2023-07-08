@@ -25,7 +25,7 @@ machine <HOST> login <USER> password <TOKEN>
 (setq clockifun-gitea-host "<HOST>")
 ```
 
-#### Usage
+#### USAGE 
 
 clockifun can detects the issue id from the task
 
@@ -39,7 +39,7 @@ usage recommendation
 * repository demo # run M-x clockifun-project-put
 ** TASK #1
 ** TASK #2
-* repository mero
+* repository mero # run M-x clockifun-project-put
 ** TASK #3
 ** TASK #4
 ```
