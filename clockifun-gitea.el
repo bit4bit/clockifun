@@ -11,6 +11,7 @@
 
 (defconst ORG-ISSUE-ID "CLOCKIFUN-GITEA-ISSUE-ID")
 (defconst ORG-REPOSITORY "CLOCKIFUN-GITEA-REPOSITORY")
+(defconst ORG-OWNER "CLOCKIFUN-GITEA-OWNER")
 
 (defcustom clockifun-gitea-host nil
   "GITEA Host."
@@ -30,6 +31,11 @@
     (let ((element (org-entry-get nil ORG-REPOSITORY t)))
       element)))
 
+(defun clockifun-gitea--org-entry-at-endpoint->owner ()
+  (save-restriction
+    (let ((element (org-entry-get nil ORG-OWNER t)))
+      element)))
+
 (defun clockifun-gitea--org-entry-at-endpoint->issue-id ()
   (save-restriction
     (org-back-to-heading t)
@@ -45,6 +51,9 @@
 (defun clockifun-gitea--issue-id->org-entry-at-endpoint (id)
   (org-entry-put nil ORG-ISSUE-ID id))
 
+(defun clockifun-gitea--owner->org-entry-at-endpoint (owner)
+  (org-entry-put nil ORG-OWNER owner))
+
 (defun clockifun-gitea--ask-user-for-issue (repo)
   "Query issue id of REPO."
   (let ((issues (clockifun-gitea--gitea-issues
@@ -57,6 +66,10 @@
   "Ask user REPO."
   (read-from-minibuffer "REPOSITORY: " nil nil nil))
 
+(defun clockifun-gitea--ask-user-for-owner (owner)
+  "Ask owner or uses OWNER."
+  (read-from-minibuffer "OWNER: " owner nil nil))
+
 (defun clockifun-gitea--get-issue-id (repo)
   (let ((issue-id (clockifun-gitea--org-entry-at-endpoint->issue-id)))
     (if issue-id issue-id
@@ -67,6 +80,11 @@
     (if repo repo
       (clockifun-gitea--ask-user-for-repository))
     ))
+
+(defun clockifun-gitea--get-owner (default)
+  (let ((owner (clockifun-gitea--org-entry-at-endpoint->owner)))
+    (if owner owner
+      (clockifun-gitea--ask-user-for-owner default))))
 
 (defun clockifun-gitea--parse-gitea-issues-data (data)
   (mapcar (lambda (issue)
@@ -91,33 +109,32 @@
 
 (defun clockifun-gitea--clock-in ()
   (let* (
+         (user (clockifun-gitea--gitea-auth-user clockifun-gitea-host))
          (repo (clockifun-gitea--get-repository))
          (issue-id (clockifun-gitea--get-issue-id repo))
+         (owner (clockifun-gitea--get-owner user))
          )
     (unless repo (user-error "Fails to get a REPOSITORY"))
     (unless issue-id (user-error "Fails to get a ISSUE ID"))
-    
+
+
     (clockifun-gitea--issue-id->org-entry-at-endpoint issue-id)
     (clockifun-gitea--repository->org-entry-at-endpoint repo)
-    (clockifun-gitea--gitea-start-stopwatch
-     (clockifun-gitea--gitea-auth-user clockifun-gitea-host)
-     repo
-     issue-id)))
+    (clockifun-gitea--gitea-start-stopwatch owner repo issue-id)))
 
 (defun clockifun-gitea--clock-out ()
   (let* (
+         (user (clockifun-gitea--gitea-auth-user clockifun-gitea-host))
          (repo (clockifun-gitea--get-repository))
          (issue-id (clockifun-gitea--get-issue-id repo))
+         (owner (clockifun-gitea--get-owner user))
          )
     (unless repo (user-error "Fails to get a REPOSITORY"))
     (unless issue-id (user-error "Fails to get a ISSUE ID"))
     
     (clockifun-gitea--issue-id->org-entry-at-endpoint issue-id)
     (clockifun-gitea--repository->org-entry-at-endpoint repo)
-    (clockifun-gitea--gitea-stop-stopwatch
-     (clockifun-gitea--gitea-auth-user clockifun-gitea-host)
-     repo
-     issue-id)
+    (clockifun-gitea--gitea-stop-stopwatch owner repo issue-id)
     ))
 
 (defun clockifun-gitea--gitea-auth-token (host)

@@ -119,6 +119,7 @@
 
 (ert-deftest clockifun-gitea-test-clock-in-when-not-have-repository-raise-error ()
   (with-mock
+   (stub clockifun-gitea--ask-user-for-owner => "demo")
    (stub clockifun-gitea--ask-user-for-issue => nil)
    (stub clockifun-gitea--gitea-start-stopwatch => t)
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
@@ -135,11 +136,12 @@
 
 (ert-deftest clockifun-gitea-test-clock-in-when-not-have-issue-ask-user ()
   (with-mock
-   (mock (clockifun-gitea--ask-user-for-issue "DEMO") => "123")
-
+   (stub clockifun-gitea--ask-user-for-owner => "demo")
    (stub clockifun-gitea--gitea-start-stopwatch => t)
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
-   
+
+   (mock (clockifun-gitea--ask-user-for-issue "DEMO") => "123")
+
    (with-stopwatcher
     (symbol-function 'clockifun-stopwatcher-gitea)
     (org-test-with-temp-text
@@ -151,6 +153,7 @@
 
 (ert-deftest clockifun-gitea-test-clock-in-when-not-have-repository-ask-user ()
   (with-mock
+   (stub clockifun-gitea--ask-user-for-owner => "demo")
    (stub clockifun-gitea--gitea-start-stopwatch => t)
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
 
@@ -163,9 +166,26 @@
      (org-clock-in)
      (org-clock-out)))))
 
+(ert-deftest clockifun-gitea-test-clock-in-when-not-have-owner-ask-user ()
+  (with-mock
+   (stub clockifun-gitea--gitea-start-stopwatch => t)
+   (stub clockifun-gitea--gitea-stop-stopwatch => t)
+   (stub clockifun-gitea--gitea-auth-user => "default")
+   (stub clockifun-gitea--ask-user-for-repository => "demo")
+
+   (mock (clockifun-gitea--ask-user-for-owner "default") => "bit4bit")
+   
+   (with-stopwatcher
+    (symbol-function 'clockifun-stopwatcher-gitea)
+    (org-test-with-temp-text
+     "* DEMO #1"
+     (org-clock-in)
+     (org-clock-out)))))
+
 (ert-deftest clockifun-gitea-test-clock-in-when-have-invalid-raises-error ()
   (with-mock
-   (stub clockifun-gitea--get-repository => "demo")
+   (stub clockifun-gitea--ask-user-for-owner => "demo")
+   (stub clockifun-gitea--ask-user-for-repository => "demo")
    (stub clockifun-gitea--ask-user-for-issue => nil)
    (stub clockifun-gitea--gitea-start-stopwatch => t)
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
@@ -180,13 +200,13 @@
       )) :type 'user-error)))
 
 
-(ert-deftest clockifun-gitea-test-clock-in-starts-stopwatch ()
+(ert-deftest clockifun-gitea-test-clock-in-starts-stopwatch-using-owner ()
   (with-mock
+   (stub clockifun-gitea--ask-user-for-owner => "demo")
    (stub clockifun-gitea--gitea-auth-user => "bit4bit")
    (stub clockifun-gitea--gitea-stop-stopwatch => t)
 
-   (mock (clockifun-gitea--gitea-start-stopwatch "bit4bit" "demo" "123"))
-
+   (mock (clockifun-gitea--gitea-start-stopwatch "demo" "demo" "123"))
 
    (with-stopwatcher
     (symbol-function 'clockifun-stopwatcher-gitea)
@@ -194,18 +214,19 @@
      "* DEMO"
      (clockifun-gitea--repository->org-entry-at-endpoint "demo")
      (clockifun-gitea--issue-id->org-entry-at-endpoint "123")
-     (setq clockifun-gitea-username "bit4bit")
+     (clockifun-gitea--owner->org-entry-at-endpoint "demo")
      (org-clock-in)
      (org-clock-out)
      ))))
 
-(ert-deftest clockifun-gitea-test-clock-in-stops-stopwatch ()
+(ert-deftest clockifun-gitea-test-clock-in-stops-stopwatch-using-owner ()
   (with-mock
+   (stub clockifun-gitea--ask-user-for-owner => "demo")
    (stub clockifun-gitea--gitea-auth-user => "bit4bit")
-   (stub clockifun-gitea--get-repository => "demo")
+   (stub clockifun-gitea--ask-user-for-repository => "demo")
    (stub clockifun-gitea--gitea-start-stopwatch => t)
 
-   (mock (clockifun-gitea--gitea-stop-stopwatch "bit4bit" "demo" "123"))
+   (mock (clockifun-gitea--gitea-stop-stopwatch "demo" "demo" "123"))
    
    (with-stopwatcher
     (symbol-function 'clockifun-stopwatcher-gitea)
@@ -213,6 +234,7 @@
      "* DEMO"
      (clockifun-gitea--repository->org-entry-at-endpoint "demo")
      (clockifun-gitea--issue-id->org-entry-at-endpoint "123")
+     (clockifun-gitea--owner->org-entry-at-endpoint "demo")
      (setq clockifun-gitea-username "bit4bit")
      (org-clock-in)
      (org-clock-out)
