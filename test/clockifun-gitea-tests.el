@@ -52,6 +52,14 @@
             (clockifun-gitea--repository->org-entry-at-endpoint "DEMO")
             (buffer-string)))))
 
+(ert-deftest clockifun-gitea-test-clock-in-save-owner-in-org-entry-property ()
+  (should (string=
+           "* DEMO\n  :PROPERTIES:\n  :CLOCKIFUN-GITEA-OWNER: DEMO\n  :END:\n"
+           (org-test-with-temp-text
+            "* DEMO"
+            (clockifun-gitea--owner->org-entry-at-endpoint "DEMO")
+            (buffer-string)))))
+
 ;; al iniciar reloj
 ;; - consultar issues : externo
 ;; - [x] almacenar property en entrada org

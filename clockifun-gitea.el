@@ -156,8 +156,12 @@
     (clockifun-gitea--parse-gitea-issues-data data)))
 
 (defun clockifun-gitea--clock-put ()
+  "Initial context for task."
   (clockifun-gitea--repository->org-entry-at-endpoint
-   (clockifun-gitea--get-repository)))
+   (clockifun-gitea--get-repository))
+  (let ((user (clockifun-gitea--gitea-auth-user clockifun-gitea-host)))
+    (clockifun-gitea--owner->org-entry-at-endpoint
+     (clockifun-gitea--get-owner user))))
 
 (defun clockifun-stopwatcher-gitea ()
   "PLUGIN."
