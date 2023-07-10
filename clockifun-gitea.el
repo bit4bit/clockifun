@@ -145,7 +145,12 @@
 
 (defun clockifun-gitea--gitea-call (host method resource &optional body)
   "Do call to gitea HOST using http METHOD to RESOURCE with BODY."
-  (clockifun--http-call host method resource body))
+  (clockifun--http-call
+   host
+   (lambda (host)
+     (let ((secret (clockifun--host->auth-token host)))
+       (cons "Authorization"  (concat "token " secret))))
+   method resource body))
 
 (defun clockifun-gitea--gitea-issues (host username repo)
   (let* ((token (clockifun-gitea--gitea-auth-token host))

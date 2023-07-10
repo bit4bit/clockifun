@@ -11,12 +11,20 @@
 
 (defun clockify-call (method resource &optional body)
   "return me"
-  (clockifun--http-call "api.clockify.me" method (concat "/api") body))
+  (clockifun--http-call
+   "api.clockify.me"
+   (lambda (host)
+     (let ((secret (clockifun--host->auth-token host)))
+       (cons "X-Api-Key"  secret)))
+   method
+   (append (list "/api") resource) body))
 
 (defun clockify-call/sexp (method resource &optional body)
   "return SEXP"
-  (json-read-from-string (decode-coding-string (clockify-call method resource body)
-                                               'utf-8)))
+  (json-read-from-string
+   (decode-coding-string
+    (clockify-call method resource body)
+    'utf-8)))
 
 (defun clockify-workspaces ()
   "get workspaces"

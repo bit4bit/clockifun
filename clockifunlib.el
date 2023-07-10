@@ -18,13 +18,13 @@
     (unless found (error (format "not found auth token for host %s" host)))
     (plist-get found :user)))
 
-(defun clockifun--http-call (host method resource &optional body)
+(defun clockifun--http-call (host authorization-header-fun method resource &optional body)
   "Do http call json to HOST using http METHOD to RESOURCE with BODY."
-  (let* ((secret (clockifun--host->auth-token host))
-         (url-request-method method)
+  (let* ((url-request-method method)
          (url-request-extra-headers
           (list '("Content-Type" . "application/json")
-                (cons "Authorization"  (concat "token " secret))))
+                (authorization-header-fun host)
+                ))
          (service (if (listp resource) (string-join resource "/") resource))
          (url-request-data (if (listp body)
                                (replace-regexp-in-string "[^[:ascii:]]" "?"
