@@ -23,7 +23,7 @@
   (let* ((url-request-method method)
          (url-request-extra-headers
           (list '("Content-Type" . "application/json")
-                (authorization-header-fun host)
+                (funcall authorization-header-fun host)
                 ))
          (service (if (listp resource) (string-join resource "/") resource))
          (url-request-data (if (listp body)
